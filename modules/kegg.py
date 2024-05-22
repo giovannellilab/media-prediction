@@ -25,14 +25,14 @@ def _get_orthologs(text: str) -> pd.DataFrame:
     )
 
 
-def media2ec(ec_list: list) -> pd.DataFrame:
+def media2ec(id_list: list) -> pd.DataFrame:
 
     session = _get_session()
     base_url = "https://rest.kegg.jp/get/ec:{}"
 
     results_list = []
 
-    for ec_number in ec_list:
+    for ec_number in id_list:
         url = base_url.format(ec_number)
 
         response = session.get(url)

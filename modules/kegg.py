@@ -60,7 +60,6 @@ def media2ec(ec_list: list) -> pd.DataFrame:
                 }).to_frame().T
             )
 
-
     return pd.concat(
         results_list,
         axis=0,
@@ -68,37 +67,15 @@ def media2ec(ec_list: list) -> pd.DataFrame:
     )
 
 
-def get_taxon2ec(id_list: list) -> pd.DataFrame:
-    # Initialize results CSV file
-    results_path = os.path.join(
-        DATA_DIR,
-        "kegg",
-        "taxon2ec-kegg.csv"
-    )
-    record_columns = [
-        "Gene",
-        "EC",
-        "KEGG ID"
-    ]
-    pd.DataFrame(columns=record_columns).to_csv(
-        results_path,
-        index=False,
-        mode="w"
-    )
+def taxon2ec(id_list: list) -> pd.DataFrame:
 
-    retries = Retry(
-        total=5,
-        backoff_factor=0.25,
-        status_forcelist=[500, 502, 503, 504]
-    )
-    session = requests.Session()
-    session.mount("https://", HTTPAdapter(max_retries=retries))
+    session = _get_session()
+    base_url = "https://rest.kegg.jp/link/ec/{}"
 
-    for id_idx, kegg_id in enumerate(id_list):
+    results_list = []
 
-        # print(f"[+] Retrieving EC numbers for organism: {kegg_id}")
-
-        url = f"https://rest.kegg.jp/link/ec/{kegg_id}"
+    for kegg_id in id_list:
+        url = base_url.format(kegg_id)
 
         response = session.get(url)
         response.raise_for_status()
@@ -114,20 +91,10 @@ def get_taxon2ec(id_list: list) -> pd.DataFrame:
         # Add KEGG ID column
         response_df["KEGG ID"] = kegg_id
 
-        # Save dataframe to file
-        response_df.to_csv(
-            results_path,
-            index=False,
-            header=False,
-            mode="a"
-        )
+        results_list.append(response_df)
 
-        # Delete dataframe to save space
-        del response_df
-
-        if id_idx % 10 == 0:
-            print(
-                f"[+] Processed organism {kegg_id} ({id_idx} / {len(id_list)})"
-            )
-
-        time.sleep(0.25)
+    return pd.concat(
+        results_list,
+        axis=0,
+        ignore_index=True
+    )

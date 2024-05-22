@@ -2,13 +2,12 @@ from io import StringIO
 
 import pandas as pd
 
-import requests
-from requests.adapters import HTTPAdapter, Retry
-
 from Bio.KEGG.Enzyme import parse
 
+from modules.utils import _get_session
 
-def get_orthologs(text: str) -> pd.DataFrame:
+
+def _get_orthologs(text: str) -> pd.DataFrame:
 
     # Remove last section
     text = text.split("GENES")[0]
@@ -26,22 +25,15 @@ def get_orthologs(text: str) -> pd.DataFrame:
     )
 
 
-def get_media2ec(ec_list: list) -> pd.DataFrame:
+def media2ec(ec_list: list) -> pd.DataFrame:
 
-    retries = Retry(
-        total=5,
-        backoff_factor=0.25,
-        status_forcelist=[500, 502, 503, 504]
-    )
-    session = requests.Session()
-    session.mount("https://", HTTPAdapter(max_retries=retries))
+    session = _get_session()
+    base_url = "https://rest.kegg.jp/get/ec:{}"
 
-
-    results_df = []
+    results_list = []
 
     for ec_number in ec_list:
-
-        url = f"https://rest.kegg.jp/get/ec:{ec_number}"
+        url = base_url.format(ec_number)
 
         response = session.get(url)
         response.raise_for_status()
@@ -49,11 +41,10 @@ def get_media2ec(ec_list: list) -> pd.DataFrame:
         for record in parse(StringIO(response.text)):
 
             # Get orthologs
-            orth_df = get_orthologs(response.text)
+            orth_df = _get_orthologs(response.text)
             orth_list = ";".join(orth_df["ID"].values)
 
-            results_df.append(
-                # TODO: finish!
+            results_list.append(
                 pd.Series({
                     "Entry": record.entry,
                     "Name": record.name,
@@ -70,13 +61,11 @@ def get_media2ec(ec_list: list) -> pd.DataFrame:
             )
 
 
-    results_df = pd.concat(
-        results_df,
+    return pd.concat(
+        results_list,
         axis=0,
         ignore_index=True
     )
-
-    return results_df
 
 
 def get_taxon2ec(id_list: list) -> pd.DataFrame:

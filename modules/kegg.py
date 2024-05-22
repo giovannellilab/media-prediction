@@ -26,61 +26,54 @@ def get_orthologs(text: str) -> pd.DataFrame:
     )
 
 
-ec_list = [
-    "1.1.1.1",
-    "1.1.1.2"
-]
+def get_media2ec(ec_list: list) -> pd.DataFrame:
+
+    retries = Retry(
+        total=5,
+        backoff_factor=0.25,
+        status_forcelist=[500, 502, 503, 504]
+    )
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retries))
 
 
-retries = Retry(
-    total=5,
-    backoff_factor=0.25,
-    status_forcelist=[500, 502, 503, 504]
-)
-session = requests.Session()
-session.mount("https://", HTTPAdapter(max_retries=retries))
+    results_df = []
+
+    for ec_number in ec_list:
+
+        url = f"https://rest.kegg.jp/get/ec:{ec_number}"
+
+        response = session.get(url)
+        response.raise_for_status()
+
+        for record in parse(StringIO(response.text)):
+
+            # Get orthologs
+            orth_df = get_orthologs(response.text)
+            orth_list = ";".join(orth_df["ID"].values)
+
+            results_df.append(
+                # TODO: finish!
+                pd.Series({
+                    "Entry": record.entry,
+                    "Name": record.name,
+                    "Orthologs": orth_list,
+                    "Cofactor": record.cofactor,
+                    "Pathway": record.pathway,
+                    "Reaction": record.reaction,
+                    "Product": record.product,
+                    "Genes": record.genes,
+                    "Structures": record.structures,
+                    "Substrate": record.substrate,
+                    "DBLinks": record.dblinks
+                }).to_frame().T
+            )
 
 
-results_df = []
+    results_df = pd.concat(
+        results_df,
+        axis=0,
+        ignore_index=True
+    )
 
-for ec_number in ec_list:
-
-    url = f"https://rest.kegg.jp/get/ec:{ec_number}"
-
-    response = session.get(url)
-    response.raise_for_status()
-
-    for record in parse(StringIO(response.text)):
-
-        # Get orthologs
-        orth_df = get_orthologs(response.text)
-        orth_list = ";".join(orth_df["ID"].values)
-
-        results_df.append(
-            # TODO: finish!
-            pd.Series({
-                "Entry": record.entry,
-                "Name": record.name,
-                "Orthologs": orth_list,
-                "Cofactor": record.cofactor,
-                "Pathway": record.pathway,
-                "Reaction": record.reaction,
-                "Product": record.product,
-                "Genes": record.genes,
-                "Structures": record.structures,
-                "Substrate": record.substrate,
-                "DBLinks": record.dblinks
-            }).to_frame().T
-        )
-
-
-results_df = pd.concat(
-    results_df,
-    axis=0,
-    ignore_index=True
-)
-results_df.to_csv(
-    "kegg-ec.csv",
-    sep="#",
-    index=False
-)
+    return results_df

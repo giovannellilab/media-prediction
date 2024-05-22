@@ -1,6 +1,6 @@
-import time
-
 import pandas as pd
+
+from modules.utils import _get_session
 
 
 def _get_ec_values(record: dict) -> list:
@@ -31,72 +31,27 @@ def _get_record(record: dict) -> pd.DataFrame:
     return record_df
 
 
-def get_taxon2ec(id_list: list) -> pd.DataFrame:
-    # Initialize results CSV file
-    results_path = os.path.join(
-        DATA_DIR,
-        "uniprot",
-        "komodo_taxon_to_uniprot_ec.csv"
-    )
-    record_columns = [
-        "entryType",
-        "primaryAccession",
-        "uniProtkbId",
-        "taxonId",
-        "fullName",
-        "ecNumbers"
-    ]
-    pd.DataFrame(columns=record_columns).to_csv(
-        results_path,
-        index=False,
-        mode="w"
-    )
+def taxon2ec(id_list: list) -> pd.DataFrame:
 
-    retries = Retry(
-        total=5,
-        backoff_factor=0.25,
-        status_forcelist=[500, 502, 503, 504]
-    )
-    session = requests.Session()
-    session.mount("https://", HTTPAdapter(max_retries=retries))
+    session = _get_session()
+    base_url = "https://rest.uniprot.org/uniprotkb/search?query=organism_id:{}&fields=id,organism_id,ec,cc_function,cc_pathway"
 
-    for taxon_idx, taxon_id in enumerate(taxon_id_list):
-        url = f"https://rest.uniprot.org/uniprotkb/search?query=organism_id:{taxon_id}&fields=id,organism_id,ec,cc_function,cc_pathway"
+    results_list = []
 
-        print(f"[+] Retrieving EC numbers for taxon ID: {taxon_id}")
+    for taxon_idx, taxon_id in enumerate(id_list):
+        url = base_url.format(taxon_id)
 
         response = session.get(url)
         response.raise_for_status()
 
-        response_df = pd.DataFrame(columns=record_columns)
+        for record in response.json()["results"]:
+            results_list.append(_get_record(record))
 
-        for record_idx, record in enumerate(response.json()["results"]):
+        if taxon_idx % 50 == 0:
+            print(f"[+] Processed taxon ID {taxon_idx} / {len(id_list)}")
 
-            response_df = pd.concat(
-                [response_df, _get_record(record)],
-                axis=0,
-                ignore_index=True
-            )
-
-            if record_idx % 10 == 0:
-                print(
-                    f"[+] Taxon ID {taxon_id} - " + \
-                    f"Processed record {record_idx + 1} / " + \
-                    f"{len(response.json()['results'])}"
-                )
-
-        # Save dataframe to file
-        response_df.to_csv(
-            results_path,
-            index=False,
-            header=False,
-            mode="a"
-        )
-
-        # Delete dataframe to save space
-        del response_df
-
-        if taxon_idx % 100 == 0:
-            print(f"[+] Processed taxon ID {taxon_idx + 1} / {len(taxon_id_list)}")
-
-        time.sleep(0.25)
+    return pd.concat(
+        results_list,
+        axis=0,
+        ignore_index=True
+    )

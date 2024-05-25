@@ -165,3 +165,4 @@ figures/
 notes/
 repos/
 .DS_Store
+config.yaml

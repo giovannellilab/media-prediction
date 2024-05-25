@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 import pandas as pd
 
 from modules.utils import _get_session
@@ -38,7 +40,7 @@ def taxon2ec(id_list: list) -> pd.DataFrame:
 
     results_list = []
 
-    for taxon_idx, taxon_id in enumerate(id_list):
+    for taxon_id in tqdm(id_list):
         url = base_url.format(taxon_id)
 
         response = session.get(url)
@@ -46,9 +48,6 @@ def taxon2ec(id_list: list) -> pd.DataFrame:
 
         for record in response.json()["results"]:
             results_list.append(_get_record(record))
-
-        if taxon_idx % 50 == 0:
-            print(f"[+] Processed taxon ID {taxon_idx} / {len(id_list)}")
 
     return pd.concat(
         results_list,

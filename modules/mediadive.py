@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 
 
-def get_composition(id_list: list):
+def get_composition(id_list: list) -> pd.DataFrame:
     base_url = 'https://mediadive.dsmz.de/rest/medium/{}'
     composition_data = []
 
@@ -44,7 +44,7 @@ def get_composition(id_list: list):
     return composition_df
 
 
-def get_strains(id_list: list):
+def get_strains(id_list: list) -> pd.DataFrame:
     base_url = 'https://mediadive.dsmz.de/rest/medium-strains/{}'
     strain_data = []
 

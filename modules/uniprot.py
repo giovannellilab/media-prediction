@@ -36,7 +36,7 @@ def _get_record(record: dict) -> pd.DataFrame:
 def taxon2ec(id_list: list) -> pd.DataFrame:
 
     session = _get_session()
-    base_url = "https://rest.uniprot.org/uniprotkb/search?query=organism_id:{}&fields=id,organism_id,ec,cc_function,cc_pathway"
+    base_url = "https://rest.uniprot.org/uniprotkb/search?query=(reviewed:true)+AND+(organism_id:{})&fields=id,organism_id,ec,cc_function,cc_pathway"
 
     results_list = []
 

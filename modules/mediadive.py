@@ -76,9 +76,7 @@ def get_strains(id_list: list) -> pd.DataFrame:
                     'species': strain.get('species'),
                     'ccno': strain.get('ccno'),
                     'bacdive_id': strain.get('bacdive_id')
-                })     
-        else:
-            print(f"Request failed with status code: {response.status_code}")
+                })
 
     # Convert the list of dictionaries to a DataFrame
     strain_df = pd.DataFrame(strain_data)

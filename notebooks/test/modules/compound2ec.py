@@ -15,7 +15,7 @@ retries = Retry(
 session = requests.Session()
 session.mount("https://", HTTPAdapter(max_retries=retries))
 
-
+### KEGG ### 
 
 def compound2ec(id_list: list):
     # Initialize an empty list to store parsed results
@@ -61,3 +61,5 @@ def compound2ec(id_list: list):
         compound2ec_df = pd.DataFrame(columns=["Entry", "Enzyme"])
 
     return compound2ec_df
+
+### UniProt ###

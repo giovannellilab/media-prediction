@@ -36,7 +36,9 @@ def taxon2ec(
     for strain in client.retrieve():
         response_df = pd.json_normalize(strain)
 
+        # -------------------------------------------------------------------- #
         # Rename columns
+
         column_mapping = dict(
             zip(
                 response_df.columns,
@@ -65,8 +67,15 @@ def taxon2ec(
                 "name_and_taxonomic_classification_type_strain": "type_strain"
             })
 
+        # -------------------------------------------------------------------- #
+        # Format taxon IDs
+
+        # In case NCBI taxon ID is missing
+        if "taxon_id" not in response_df.columns:
+            response_df["taxon_id"] = None
+
         # Add NCBI taxon ID information
-        if type(response_df["taxon_id"].values[0]) == np.ndarray:
+        elif type(response_df["taxon_id"].values[0]) == np.ndarray:
             taxon_df = _format_taxon_id(response_df["taxon_id"].values[0])
             response_df = pd.concat(
                 [taxon_df.reset_index(drop=True), response_df],
@@ -74,15 +83,20 @@ def taxon2ec(
                 ignore_index=False
             )
 
+        # -------------------------------------------------------------------- #
         # Extract EC numbers and store as list
+        response_df["ec"] = None
+
+        # If the "ec_numbers" field is present
         if "ec_numbers" in response_df.columns:
             ec_list = pd.DataFrame.from_dict(
                 response_df["ec_numbers"].values[0],
                 orient="columns"
             )
-            response_df["ec"] = [ec_list["ec"].dropna().unique().tolist()]
-        else:
-            response_df["ec"] = None
+
+            # Sometimes the "ec" column is not present
+            if "ec" in ec_list.columns:
+                response_df["ec"] = [ec_list["ec"].dropna().unique().tolist()]
 
         results_list.append(response_df)
 

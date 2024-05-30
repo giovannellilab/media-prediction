@@ -85,6 +85,7 @@ def taxon2ec(
 
         # -------------------------------------------------------------------- #
         # Extract EC numbers and store as list
+
         response_df["ec"] = None
 
         # If the "ec_numbers" field is present

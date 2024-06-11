@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter, Retry
 from Bio.KEGG.Enzyme import parse
+from Bio.KEGG import REST
 
 def get_orthologs(text: str) -> pd.DataFrame:
     # Remove last section

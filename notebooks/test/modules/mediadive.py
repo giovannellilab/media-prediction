@@ -82,3 +82,32 @@ def get_strains(id_list: list) -> pd.DataFrame:
     strain_df = pd.DataFrame(strain_data)
 
     return strain_df
+
+
+def get_compounds(id_list: list) -> pd.DataFrame:
+    base_url = 'https://mediadive.dsmz.de/rest/ingredient/{}'
+    ingredient_data = []
+
+    for id in tqdm(id_list):
+        url = base_url.format(id)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            # Extract data from the 'data' field
+            info = data.get('data', {})
+            
+            # Append data for this component to ingredient_data
+            ingredient_data.append({
+                'component_id': id,
+                'ChEBI': info.get('ChEBI'),
+                'KEGG cpd': info.get('KEGG-Compound')
+            })
+        else:
+            print(f"Request for {id} failed with status code: {response.status_code}")
+    
+        #print(f'Retrieved data for {id}')
+
+    # Convert the list of dictionaries to a DataFrame
+    ingr_data = pd.DataFrame(ingredient_data)
+    return ingr_data

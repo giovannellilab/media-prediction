@@ -208,8 +208,9 @@ def ec2metals(id_list: list) -> pd.DataFrame:
         # Sort columns
         response_df = response_df[record_columns].copy()
 
-        # Extract and format cofactors
-        response_df = _format_cofactors(response_df)
+        # Extract and format cofactors (if any)
+        if response_df["Cofactor"].dropna().any():
+            response_df = _format_cofactors(response_df)
 
         results_list.append(response_df)
 

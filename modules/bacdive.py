@@ -21,6 +21,17 @@ def _format_taxon_id(taxon_values: list) -> pd.DataFrame:
     taxon_df = taxon_df.loc["NCBI tax id"].to_frame().T
     taxon_df.columns = [f"taxon_id_{col}" for col in taxon_df.columns]
 
+    taxon_df = taxon_df.reset_index(drop=True)
+
+    # If more than one taxon ID at the species level is present, combine them
+    # WARNING: this drops any strain-level ID
+    if taxon_df.columns.tolist().count("taxon_id_species") > 1:
+        taxon_df = pd.Series({
+            "taxon_id_species": ";".join(
+                taxon_df["taxon_id_species"].astype(str).values[0]
+            )
+        }).to_frame().T
+
     return taxon_df
 
 
@@ -50,8 +61,8 @@ def taxon2ec(
             .rename(columns={
                 "general_bacdive_id": "bacdive_id",
                 "general_dsm_number": "dsmz_id",
-                "general_ncbi_tax_id": "taxon_id",
-                "ncbi_tax_id_ncbi_tax_id": "taxon_id",
+                "general_ncbi_tax_id": "taxon_id_species",
+                "ncbi_tax_id_ncbi_tax_id": "taxon_id_species",
                 "physiology_and_metabolism_enzymes": "ec_numbers",
                 "physiology_and_metabolism_metabolite_utilization": "metabol_uti",
                 "metabolite_production_chebi_id": "chebi_id",
@@ -70,18 +81,34 @@ def taxon2ec(
         # -------------------------------------------------------------------- #
         # Format taxon IDs
 
-        # In case NCBI taxon ID is missing
-        if "taxon_id" not in response_df.columns:
-            response_df["taxon_id"] = None
+        # Initialize taxon_id_strain column
+        response_df["taxon_id_strain"] = None
+
+        # Missing NCBI taxon ID
+        if "taxon_id_species" not in response_df.columns:
+            response_df["taxon_id_species"] = None
 
         # Add NCBI taxon ID information
-        elif type(response_df["taxon_id"].values[0]) == np.ndarray:
-            taxon_df = _format_taxon_id(response_df["taxon_id"].values[0])
+        elif type(response_df["taxon_id_species"].values[0]) == list:
+            taxon_df = _format_taxon_id(
+                response_df["taxon_id_species"].values[0]
+            )
             response_df = pd.concat(
-                [taxon_df.reset_index(drop=True), response_df],
+                [
+                    taxon_df,
+                    response_df.drop(
+                        ["taxon_id_species", "taxon_id_strain"],
+                        axis=1
+                    )
+                ],
                 axis=1,
                 ignore_index=False
             )
+
+        # Rename taxon_id_species to taxon_id
+        response_df = response_df.rename(columns={
+            "taxon_id_species": "taxon_id"
+        })
 
         # -------------------------------------------------------------------- #
         # Extract EC numbers and store as list

@@ -73,6 +73,50 @@ def species2ec(id_list: list):
 
 
 
+# Initialize an empty list to store DataFrame rows
+def taxon2ec(id_list: list):
+    
+    taxa2ec_df = []
+    no_data = 0
+    
+    # REST API base URL
+    base_url = 'https://rest.uniprot.org/uniprotkb/search?fields=accession%2Cec%2Corganism_name%2Corganism_id%2Ccc_cofactor%2Cid&format=tsv&size=500'
+
+    for taxonomy_id in tqdm(id_list, desc="Processing species"):  # Wrap the loop with tqdm
+        url = f'{base_url}&query=%28organism_id%3A{taxonomy_id}%29+AND+%28ec%3A*%29' #Search by NCBI ID
+
+        try:
+            response = session.get(url)
+            response.raise_for_status()
+            lines = response.text.splitlines()
+
+            # Check if no results found
+            if len(lines) <= 1:
+                no_data += 1
+#                print(f"No data found for {taxonomy_id}")
+                continue
+
+            # Iterate through lines to extract EC numbers
+            for line in lines[1:]:  # Skip header line
+                columns = line.split('\t')
+                if len(columns) > 1:
+                    ec_number = columns[1]  # Assuming EC number is the second column
+                    taxa2ec_df.append({"species": taxonomy_id, "ec_uniprot": ec_number})
+
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred for {taxonomy_id}: {http_err}")
+        except Exception as err:
+            print(f"An error occurred for {taxonomy_id}: {err}")
+
+    # Convert the list of dictionaries into a DataFrame
+    taxa2ec_df = pd.DataFrame(taxa2ec_df)
+    
+    print(f"{no_data} species with no data")
+    
+    return taxa2ec_df
+
+
+
 def ec_info(id_list: list):
     
     info_df = []

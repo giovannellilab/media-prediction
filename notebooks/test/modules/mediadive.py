@@ -19,6 +19,8 @@ def get_media() -> pd.DataFrame:
 
 
 def get_composition(id_list: list) -> pd.DataFrame:
+    session = _get_session()
+
     base_url = 'https://mediadive.dsmz.de/rest/medium/{}'
     composition_data = []
 
@@ -41,7 +43,7 @@ def get_composition(id_list: list) -> pd.DataFrame:
                         component_ids.append(item.get('compound_id'))
                     elif 'solution' in item:  # Check for 'solution' and 'solution_id'
                         components.append(item.get('solution'))
-                        component_ids.append(item.get('solution_id'))
+                        #component_ids.append(item.get('solution_id')) #don't record solution_id's, only the components
             # Append data for this media to composition_data
             composition_data.append({
                 'media_id': media_id,

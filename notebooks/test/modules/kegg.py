@@ -103,7 +103,7 @@ def compound2ec(id_list: list):
             # Append extracted information to results list
             compound2ec_df.append(
                 pd.Series({
-                    "Entry": compound_id,
+                    "KEGG cpd": compound_id,
                     "Enzyme": enzymes,
                 }).to_frame().T
             )
@@ -117,7 +117,7 @@ def compound2ec(id_list: list):
     if compound2ec_df:
         compound2ec_df = pd.concat(compound2ec_df, axis=0, ignore_index=True)
     else:
-        compound2ec_df = pd.DataFrame(columns=["Entry", "Enzyme"])
+        compound2ec_df = pd.DataFrame(columns=["KEGG cpd", "Enzyme"])
 
     return compound2ec_df
 

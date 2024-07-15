@@ -5,26 +5,7 @@ from requests.adapters import HTTPAdapter, Retry
 from Bio.KEGG.Enzyme import parse
 from Bio.KEGG import REST
 
-def get_orthologs(text: str) -> pd.DataFrame:
-    # Remove last section
-    text = text.split("GENES")[0]
 
-    # Remove previous section
-    text = text.split("ORTHOLOGY")[-1]
-
-    # Replace extra whitespaces
-    text = text.strip()
-
-    # Handle empty text case
-    if not text:
-        return pd.DataFrame(columns=["ID", "name"])
-
-    return pd.read_csv(
-        StringIO(text),
-        sep="  ",
-        names=["ID", "name"],
-        engine='python'  # use python engine to handle regex separator
-    )
 
 def ec_info(ec_list: list):
     retries = Retry(

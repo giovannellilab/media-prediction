@@ -110,6 +110,16 @@ def taxon2ec(
             "taxon_id_species": "taxon_id"
         })
 
+        # Fix multiple strain IDs for the same record
+        if response_df.columns.tolist().count("taxon_id_strain") > 1:
+            response_df = response_df.rename(columns={
+                "taxon_id_strain": "taxon_id_strain_old"
+            })
+            response_df["taxon_id_strain"] = ";".join(
+                response_df["taxon_id_strain_old"].astype(str).values[0]
+            )
+            response_df = response_df.drop("taxon_id_strain_old", axis=1)
+
         # -------------------------------------------------------------------- #
         # Extract EC numbers and store as list
 
@@ -126,6 +136,7 @@ def taxon2ec(
             if "ec" in ec_list.columns:
                 response_df["ec"] = [ec_list["ec"].dropna().unique().tolist()]
 
+        # Append to list
         results_list.append(response_df)
 
     return pd.concat(

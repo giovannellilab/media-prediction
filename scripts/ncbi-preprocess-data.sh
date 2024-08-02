@@ -18,7 +18,7 @@ do
     # See: https://unix.stackexchange.com/a/292254
     # 1) Find all protein.faa inside each folder
     # 2) Add the taxon ID in the header with sed
-    # 3) Append to mediadive.faa
+    # 3) Append to all-proteins.faa
     find $dir \
         -name "protein.faa" \
         -exec sed -e "s/>/>${taxon}_/g" {} + >> all-proteins.faa

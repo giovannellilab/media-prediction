@@ -1,6 +1,8 @@
 from requests import Session
 from requests.adapters import HTTPAdapter, Retry
-
+import os
+import re
+import pandas as pd
 
 def _get_session() -> Session:
 
@@ -13,11 +15,6 @@ def _get_session() -> Session:
     session.mount("https://", HTTPAdapter(max_retries=retries))
 
     return session
-
-
-import os
-import re
-import pandas as pd
 
 def extract_ec_number(ec_string):
     match = re.search(r'EC:(\d+\.\d+\.\d+\.\d+)', ec_string)
@@ -135,4 +132,3 @@ def process_directory(directory):
     # Combine all dataframes into one
     final_df = pd.concat(all_genes, ignore_index=True)
     return final_df
-

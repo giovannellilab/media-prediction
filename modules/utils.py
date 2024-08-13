@@ -3,6 +3,7 @@ from requests.adapters import HTTPAdapter, Retry
 import os
 import re
 import pandas as pd
+import ast
 
 def _get_session() -> Session:
 
@@ -132,3 +133,18 @@ def process_directory(directory):
     # Combine all dataframes into one
     final_df = pd.concat(all_genes, ignore_index=True)
     return final_df
+
+def expand_dict_list(df, column):
+    # Convert the string representation of the list of dictionaries into actual lists
+    df[column] = df[column].apply(ast.literal_eval)
+    
+    # Explode the column with lists of dictionaries to individual rows
+    df_expanded = df.explode(column).reset_index(drop=True)
+    
+    # Normalize the dictionaries into a flat dataframe
+    expanded_rows = pd.json_normalize(df_expanded[column])
+    
+    # Combine the original dataframe (excluding the original column) with the expanded rows
+    result = pd.concat([df_expanded.drop(columns=[column]), expanded_rows], axis=1)
+    
+    return result

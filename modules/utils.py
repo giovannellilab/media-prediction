@@ -4,6 +4,7 @@ import os
 import re
 import pandas as pd
 import ast
+import glob
 
 def _get_session() -> Session:
 
@@ -107,12 +108,14 @@ def genes_to_dataframe(genes, filename):
     df = pd.DataFrame(data)
     return df
 
+
 def process_directory(directory):
     if not os.path.isdir(directory):
         print(f"Directory does not exist: {directory}")
         return None
 
-    pattern = re.compile(r'KBase_derived_Bin\.\d{3}\.fastaBA_F_extracted_bins\.AssemblySet_DRAM')
+    # Relaxed pattern to match any files that contain "AssemblySet_DRAM.gff"
+    pattern = re.compile(r".*AssemblySet_DRAM\.gff$")
     all_genes = []
 
     for filename in os.listdir(directory):
@@ -122,17 +125,17 @@ def process_directory(directory):
                 print(f"File does not exist: {gff_file}")
                 continue
             print(f"Processing file: {gff_file}")
-            genes = parse_gff(gff_file)
-            df_genes = genes_to_dataframe(genes, filename)
+            genes = parse_gff(gff_file)  # Assuming parse_gff is defined elsewhere
+            df_genes = genes_to_dataframe(genes, filename)  # Assuming genes_to_dataframe is defined elsewhere
             all_genes.append(df_genes)
-    
+
     if not all_genes:
-        print("No GFF files processed.")
+        print("No matching .gff files processed.")
         return None
 
-    # Combine all dataframes into one
     final_df = pd.concat(all_genes, ignore_index=True)
     return final_df
+
 
 def expand_dict_list(df, column):
     # Convert the string representation of the list of dictionaries into actual lists

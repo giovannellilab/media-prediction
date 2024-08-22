@@ -116,7 +116,7 @@ def get_compounds(id_list: list) -> pd.DataFrame:
 
 
 def get_concentrations(id_list: list) -> pd.DataFrame:
-    session = utils._get_session()
+    session = _get_session()
 
     base_url = 'https://mediadive.dsmz.de/rest/medium/{}'
     composition_data = []

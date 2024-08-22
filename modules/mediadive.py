@@ -113,3 +113,71 @@ def get_compounds(id_list: list) -> pd.DataFrame:
     # Convert the list of dictionaries to a DataFrame
     ingr_data = pd.DataFrame(ingredient_data)
     return ingr_data
+
+
+def get_concentrations(id_list: list) -> pd.DataFrame:
+    session = utils._get_session()
+
+    base_url = 'https://mediadive.dsmz.de/rest/medium/{}'
+    composition_data = []
+
+    for media_id in tqdm(id_list):
+        url = base_url.format(media_id)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            # Initialize lists to store components and ids for each media
+
+            # Names of general solutions
+            ingredients = [] 
+            ingredient_names = []
+            components = []
+            component_ids = []
+            component_gl = []
+            steps = []
+            sub_solution = []
+            solution_ids = []
+            solution_amt = []
+
+            # Traverse the nested structure to extract compounds
+            solutions = data.get('data', {}).get('solutions', [])
+            for solution in solutions:
+                
+                ingredients.append(solution.get('id'))
+                ingredient_names.append(solution.get('name'))
+                recipe = solution.get('recipe', [])
+                steps.append(solution.get('steps'))
+
+                for item in recipe:
+                    if 'compound' in item:  # Check for 'compound' and 'compound_id'
+                        components.append(item.get('compound'))
+                        component_ids.append(item.get('compound_id'))
+                        component_gl.append(item.get('g_l'))
+
+                    elif 'solution' in item:  # Check for 'solution' and 'solution_id'
+                        sub_solution.append(item.get('solution'))
+                        solution_ids.append(item.get('solution_id'))
+                        solution_amt.append(item.get('amount'))
+
+            # Append data for this media to composition_data
+            composition_data.append({
+                'media_id': media_id,
+                'solutions': ingredients,
+                'solution_names': ingredient_names,
+                'components': components,
+                'component_ids': component_ids,
+                'component_gL': component_gl,
+                'steps': steps,
+                'sub_solutions': sub_solution,
+                'solution_ids': solution_ids,
+                'solution_ml': solution_amt
+            })     
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+
+    # Convert the list of dictionaries to a DataFrame
+    composition_df = pd.DataFrame(composition_data)
+
+    return composition_df

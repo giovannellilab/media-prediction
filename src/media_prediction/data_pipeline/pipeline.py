@@ -27,4 +27,13 @@ def get_mediadive(data_dir: str) -> pd.DataFrame:
         indicator=True
     )
 
+    data_df.to_csv(
+        os.path.join(
+            DATA_DIR,
+            "mediadive.csv"
+        ),
+        sep=";",
+        index=False
+    )
+
     return data_df

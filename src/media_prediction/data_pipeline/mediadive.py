@@ -19,14 +19,15 @@ def get_media() -> pd.DataFrame:
 
 
 def get_composition(id_list: list) -> pd.DataFrame:
-    session = _get_session()
 
+    session = _get_session()
     base_url = 'https://mediadive.dsmz.de/rest/medium/{}'
+
     composition_data = []
 
     for media_id in tqdm(id_list):
         url = base_url.format(media_id)
-        response = requests.get(url)
+        response = session.get(url)
 
         if response.status_code == 200:
             data = response.json()
@@ -60,12 +61,15 @@ def get_composition(id_list: list) -> pd.DataFrame:
 
 
 def get_strains(id_list: list) -> pd.DataFrame:
+
+    session = _get_session()
     base_url = 'https://mediadive.dsmz.de/rest/medium-strains/{}'
+
     strain_data = []
 
     for media_id in tqdm(id_list):
         url = base_url.format(media_id)
-        response = requests.get(url)
+        response = session.get(url)
 
         if response.status_code == 200:
             data = response.json()
@@ -87,12 +91,15 @@ def get_strains(id_list: list) -> pd.DataFrame:
 
 
 def get_compounds(id_list: list) -> pd.DataFrame:
+
+    session = _get_session()
     base_url = 'https://mediadive.dsmz.de/rest/ingredient/{}'
+
     ingredient_data = []
 
     for id in tqdm(id_list):
         url = base_url.format(id)
-        response = requests.get(url)
+        response = session.get(url)
 
         if response.status_code == 200:
             data = response.json()
@@ -116,14 +123,15 @@ def get_compounds(id_list: list) -> pd.DataFrame:
 
 
 def get_concentrations(id_list: list) -> pd.DataFrame:
-    session = _get_session()
 
+    session = _get_session()
     base_url = 'https://mediadive.dsmz.de/rest/medium/{}'
+
     composition_data = []
 
     for media_id in tqdm(id_list):
         url = base_url.format(media_id)
-        response = requests.get(url)
+        response = session.get(url)
 
         if response.status_code == 200:
             data = response.json()

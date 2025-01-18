@@ -87,6 +87,9 @@ def get_strains(id_list: list) -> pd.DataFrame:
     # Convert the list of dictionaries to a DataFrame
     strain_df = pd.DataFrame(strain_data)
 
+    # Convert BacDive ID to integer
+    strain_df["bacdive_id"] = strain_df["bacdive_id"].astype(int)
+
     return strain_df
 
 

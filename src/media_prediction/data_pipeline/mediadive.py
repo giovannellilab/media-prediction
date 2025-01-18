@@ -4,7 +4,7 @@ import pandas as pd
 
 import requests
 
-from .utils import _get_session
+from utils import _get_session
 
 
 def get_media() -> pd.DataFrame:

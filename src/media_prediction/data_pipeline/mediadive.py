@@ -19,7 +19,7 @@ def get_media() -> pd.DataFrame:
         .rename(columns={"id": "media_id"})
 
 
-def get_composition(id_list: list) -> pd.DataFrame:
+def get_components(id_list: list) -> pd.DataFrame:
 
     session = _get_session()
     base_url = "https://mediadive.dsmz.de/rest/medium/{}"

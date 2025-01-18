@@ -1,5 +1,6 @@
 from tqdm import tqdm
 
+import numpy as np
 import pandas as pd
 
 import requests
@@ -47,6 +48,9 @@ def get_strains(id_list: list) -> pd.DataFrame:
     strain_df = pd.DataFrame(strain_data)
 
     # Convert BacDive ID to integer
-    strain_df["bacdive_id"] = strain_df["bacdive_id"].astype(int)
+    strain_df["bacdive_id"] = strain_df["bacdive_id"]\
+        .fillna(-999)\
+        .astype(int)\
+        .replace(-999, np.nan)
 
     return strain_df

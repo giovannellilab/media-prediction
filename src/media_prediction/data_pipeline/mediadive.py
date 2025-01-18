@@ -15,7 +15,8 @@ def get_media() -> pd.DataFrame:
     response = session.get(url)
     response.raise_for_status()
 
-    return pd.DataFrame(response.json()["data"])
+    return pd.DataFrame(response.json()["data"])\
+        .rename(columns={"id": "media_id"})
 
 
 def get_composition(id_list: list) -> pd.DataFrame:
@@ -54,10 +55,7 @@ def get_composition(id_list: list) -> pd.DataFrame:
         else:
             print(f"Request failed with status code: {response.status_code}")
 
-    # Convert the list of dictionaries to a DataFrame
-    composition_df = pd.DataFrame(composition_data)
-
-    return composition_df
+    return pd.DataFrame(composition_data)
 
 
 def get_strains(id_list: list) -> pd.DataFrame:
@@ -117,12 +115,8 @@ def get_compounds(id_list: list) -> pd.DataFrame:
             })
         else:
             print(f"Request for {id} failed with status code: {response.status_code}")
-    
-        #print(f"Retrieved data for {id}")
 
-    # Convert the list of dictionaries to a DataFrame
-    ingr_data = pd.DataFrame(ingredient_data)
-    return ingr_data
+    return pd.DataFrame(ingredient_data)
 
 
 def get_concentrations(id_list: list) -> pd.DataFrame:
@@ -188,7 +182,4 @@ def get_concentrations(id_list: list) -> pd.DataFrame:
         else:
             print(f"Request failed with status code: {response.status_code}")
 
-    # Convert the list of dictionaries to a DataFrame
-    composition_df = pd.DataFrame(composition_data)
-
-    return composition_df
+    return pd.DataFrame(composition_data)

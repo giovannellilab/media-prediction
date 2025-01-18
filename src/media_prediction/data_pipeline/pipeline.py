@@ -24,8 +24,13 @@ def get_mediadive(data_dir: str) -> pd.DataFrame:
         right=md_strains_df,
         on="media_id",
         how="outer",
-        indicator=True
+        indicator="merge_source"
     )
+    data_df["merge_source"] = data_df["merge_source"]\
+        .cat.rename_categories({
+            "right_only": "media_only",
+            "left_only": "strains_only"
+        })
 
     data_df.to_csv(
         os.path.join(

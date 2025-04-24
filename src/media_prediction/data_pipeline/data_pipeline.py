@@ -12,28 +12,44 @@ def run_checks(mediadive_dict: dict) -> None:
     media_df = mediadive_dict["media"]
     strains_df = mediadive_dict["strains"]
     ingredients_df = mediadive_dict["ingredients"]
-    media_strains_df = mediadive_dict["medium-strains"]
+
+    # ------------------------------------------------------------------------ #
+    # Merge data from different sources to run the checks
+
+    # Merge media and strains IDs
+    medium_strains_df = pd.merge(
+        left=media_df,
+        right=strains_df,
+        on="media_id",
+        how="outer",
+        indicator="merge_source"
+    )
+    medium_strains_df["merge_source"] = medium_strains_df["merge_source"]\
+        .cat.rename_categories({
+            "left_only": "media_only",
+            "right_only": "strains_only"
+        })
 
     # ------------------------------------------------------------------------ #
 
     n_media = media_df["media_id"].nunique()
     n_strains = strains_df["strain_id"].nunique()
-    n_ingredients = ingredients_df["ingredients_id"].nunique()
+    n_ingredients = ingredients_df["ingredient_id"].nunique()
 
-    pairs_present = media_strains_df[["media_id", "strain_id"]]\
+    pairs_present = medium_strains_df[["media_id", "strain_id"]]\
         .drop_duplicates()\
         .shape[0]
 
-    pairs_data = media_strains_df[
-        media_strains_df["merge_source"] == "both"
+    pairs_data = medium_strains_df[
+        medium_strains_df["merge_source"] == "both"
     ][["media_id", "strain_id"]].drop_duplicates().shape[0]
 
-    pairs_media = media_strains_df[
-        media_strains_df["merge_source"] == "media_only"
+    pairs_media = medium_strains_df[
+        medium_strains_df["merge_source"] == "media_only"
     ][["media_id", "strain_id"]].drop_duplicates().shape[0]
 
-    pairs_strain = media_strains_df[
-        media_strains_df["merge_source"] == "strain_only"
+    pairs_strain = medium_strains_df[
+        medium_strains_df["merge_source"] == "strain_only"
     ][["media_id", "strain_id"]].drop_duplicates().shape[0]
 
     # ------------------------------------------------------------------------ #
@@ -91,27 +107,12 @@ def get_mediadive(data_dir: str) -> dict:
     )
 
     # ------------------------------------------------------------------------ #
-    # Merge data from different sources to run the checks
-
-    # Merge media and strains IDs
-    medium_strains_df = pd.merge(
-        left=media_df,
-        right=strains_df,
-        on="media_id",
-        how="outer",
-        indicator="merge_source"
-    )
-    medium_strains_df["merge_source"] = medium_strains_df["merge_source"]\
-        .cat.rename_categories({
-            "left_only": "media_only",
-            "right_only": "strains_only"
-        })
+    # Run checks on the results
 
     mediadive_dict = {
         "media": media_df,
         "strains": strains_df,
-        "ingredients": ingredients_df,
-        "medium-strains": medium_strains_df
+        "ingredients": ingredients_df
     }
 
     run_checks(mediadive_dict)

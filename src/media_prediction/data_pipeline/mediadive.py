@@ -82,3 +82,33 @@ def get_ingredients() -> pd.DataFrame:
     response.raise_for_status()
 
     return pd.DataFrame(response.json()["data"])
+
+
+def get_ingredients_metadata(id_list: list) -> pd.DataFrame:
+    base_url = "https://mediadive.dsmz.de/rest/ingredient/{}"
+
+    ingredient_data = []
+    missing_data = []
+
+    for ingredient_id in tqdm(id_list):
+        url = base_url.format(ingredient_id)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            # Extract data from the 'data' field
+            data = response.json().get("data", {})
+
+            # Append data for this component to ingredient_data
+            ingredient_data.append(
+                pd.DataFrame.from_dict(data, orient="index").T
+            )
+
+        else:
+            missing_data.append(ingredient_id)
+
+    print(
+        "[WARNING] Failed to retrieve data for the following ingredient IDs:",
+        missing_data
+    )
+
+    return pd.concat(ingredient_data)

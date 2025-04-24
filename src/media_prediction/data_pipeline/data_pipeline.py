@@ -11,7 +11,7 @@ def run_checks(mediadive_dict: dict) -> None:
 
     media_df = mediadive_dict["media"]
     strains_df = mediadive_dict["strains"]
-    media_strains_df = mediadive_dict["media-strains"]
+    media_strains_df = mediadive_dict["medium-strains"]
 
     # ------------------------------------------------------------------------ #
 
@@ -39,19 +39,19 @@ def run_checks(mediadive_dict: dict) -> None:
     print("[+] Number of unique media IDs: ", n_media)
     print("[+] Number of unique strain IDs:", n_strains)
     print(
-        "[+] Number of unique media-strain pairs present:\t",
+        "[+] Number of unique medium-strain pairs present:\t",
         pairs_present
     )
     print(
-        "[+] Number of unique media-strain pairs with media data:",
+        "[+] Number of unique medium-strain pairs with media data:",
         pairs_data
     )
     print(
-        "[+] Number of unique media-strain pairs with only media data: ",
+        "[+] Number of unique medium-strain pairs with only media data: ",
         pairs_media
     )
     print(
-        "[+] Number of unique media-strain pairs with only strain data:",
+        "[+] Number of unique medium-strain pairs with only strain data:",
         pairs_strain
     )
 
@@ -106,7 +106,7 @@ def get_mediadive(data_dir: str) -> dict:
         "media": media_df,
         "strains": strains_df,
         "ingredients": ingredients_df,
-        "media-strains": medium_strains_df
+        "medium-strains": medium_strains_df
     }
 
     run_checks(mediadive_dict)

@@ -26,6 +26,7 @@ def get_strains(id_list: list) -> pd.DataFrame:
     base_url = "https://mediadive.dsmz.de/rest/medium-strains/{}"
 
     strain_data = []
+    missing_data = []
 
     for media_id in tqdm(id_list):
         url = base_url.format(media_id)
@@ -45,10 +46,7 @@ def get_strains(id_list: list) -> pd.DataFrame:
                 })
 
         else:
-            print(
-                f"[FAILED] Request for {media_id} failed with status code:",
-                response.status_code
-            )
+            missing_data.append(media_id)
 
     # Convert the list of dictionaries to a DataFrame
     strain_df = pd.DataFrame(strain_data)
@@ -58,5 +56,10 @@ def get_strains(id_list: list) -> pd.DataFrame:
         .fillna(-999)\
         .astype(int)\
         .replace(-999, np.nan)
+
+    print(
+        "[WARNING] Failed to retrieve strain data for the following media IDs:",
+        missing_data
+    )
 
     return strain_df

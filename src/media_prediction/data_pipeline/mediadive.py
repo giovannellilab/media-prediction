@@ -16,8 +16,13 @@ def get_media() -> pd.DataFrame:
     response = session.get(url)
     response.raise_for_status()
 
-    return pd.DataFrame(response.json()["data"])\
+    media_df = pd.DataFrame(response.json()["data"])\
         .rename(columns={"id": "media_id"})
+
+    # Convert media_id to string
+    media_df["media_id"] = media_df["media_id"].astype(str)
+
+    return media_df
 
 
 def get_strains(id_list: list) -> pd.DataFrame:
@@ -50,6 +55,9 @@ def get_strains(id_list: list) -> pd.DataFrame:
 
     # Convert the list of dictionaries to a DataFrame
     strain_df = pd.DataFrame(strain_data)
+
+    # Convert media_id to string
+    strain_df["media_id"] = strain_df["media_id"].astype(str)
 
     # Convert BacDive ID to integer
     strain_df["bacdive_id"] = strain_df["bacdive_id"]\

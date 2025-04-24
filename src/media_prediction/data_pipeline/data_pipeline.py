@@ -13,7 +13,7 @@ def get_mediadive(data_dir: str) -> dict:
     media_df = md.get_media()
 
     # Create list of media IDs
-    media_id_list = media_df["media_id"].astype(str).unique()
+    media_id_list = media_df["media_id"].unique()
 
     # Retrieve media-associated strains
     strains_df = md.get_strains(media_id_list)

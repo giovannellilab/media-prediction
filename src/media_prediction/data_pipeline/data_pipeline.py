@@ -31,8 +31,8 @@ def get_mediadive(data_dir: str) -> dict:
     )
     media_strains_df["merge_source"] = media_strains_df["merge_source"]\
         .cat.rename_categories({
-            "right_only": "media_only",
-            "left_only": "strains_only"
+            "left_only": "media_only",
+            "right_only": "strains_only"
         })
 
     # ------------------------------------------------------------------------ #

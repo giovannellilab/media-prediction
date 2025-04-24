@@ -40,8 +40,8 @@ def get_strains(id_list: list) -> pd.DataFrame:
         if response.status_code == 200:
             data = response.json()
             
-            strains = data.get("data", [])
-            for strain in strains:
+            strain_list = data.get("data", [])
+            for strain in strain_list:
                 strain_data.append({
                     "media_id": media_id,
                     "strain_id": strain.get("id"),

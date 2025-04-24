@@ -81,7 +81,8 @@ def get_ingredients() -> pd.DataFrame:
     response = session.get(url)
     response.raise_for_status()
 
-    return pd.DataFrame(response.json()["data"])
+    return pd.DataFrame(response.json()["data"])\
+        .rename(columns={"id": "ingredient_id"})
 
 
 def get_ingredients_metadata(id_list: list) -> pd.DataFrame:
@@ -111,4 +112,5 @@ def get_ingredients_metadata(id_list: list) -> pd.DataFrame:
         missing_data
     )
 
-    return pd.concat(ingredient_data)
+    return pd.concat(ingredient_data)\
+        .rename(columns={"id": "ingredient_id"})

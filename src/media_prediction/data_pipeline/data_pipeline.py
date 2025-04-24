@@ -11,12 +11,14 @@ def run_checks(mediadive_dict: dict) -> None:
 
     media_df = mediadive_dict["media"]
     strains_df = mediadive_dict["strains"]
+    ingredients_df = mediadive_dict["ingredients"]
     media_strains_df = mediadive_dict["medium-strains"]
 
     # ------------------------------------------------------------------------ #
 
     n_media = media_df["media_id"].nunique()
     n_strains = strains_df["strain_id"].nunique()
+    n_ingredients = ingredients_df["ingredients_id"].nunique()
 
     pairs_present = media_strains_df[["media_id", "strain_id"]]\
         .drop_duplicates()\
@@ -38,6 +40,7 @@ def run_checks(mediadive_dict: dict) -> None:
 
     print("[+] Number of unique media IDs: ", n_media)
     print("[+] Number of unique strain IDs:", n_strains)
+    print("[+] Number of unique ingredient IDs:", n_ingredients)
     print(
         "[+] Number of unique medium-strain pairs present:\t",
         pairs_present
@@ -83,7 +86,9 @@ def get_mediadive(data_dir: str) -> dict:
     # Retrieve media-associated components
     print("[+] Retrieving ingredients data...")
     ingredients_df = md.get_ingredients()
-    ingredients_df = md.get_ingredients_metadata(ingredients_df["id"].unique())
+    ingredients_df = md.get_ingredients_metadata(
+        id_list=ingredients_df["ingredient_id"].unique()
+    )
 
     # ------------------------------------------------------------------------ #
     # Merge data from different sources to run the checks

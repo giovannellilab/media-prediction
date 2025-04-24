@@ -1,9 +1,9 @@
+import requests
+
 from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
-
-import requests
 
 from src.media_prediction.data_pipeline.utils import _get_session
 
@@ -43,6 +43,12 @@ def get_strains(id_list: list) -> pd.DataFrame:
                     "ccno": strain.get("ccno"),
                     "bacdive_id": strain.get("bacdive_id")
                 })
+
+        else:
+            print(
+                f"[FAILED] Request for {media_id} failed with status code:",
+                response.status_code
+            )
 
     # Convert the list of dictionaries to a DataFrame
     strain_df = pd.DataFrame(strain_data)

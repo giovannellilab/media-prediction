@@ -71,3 +71,14 @@ def get_strains(id_list: list) -> pd.DataFrame:
     )
 
     return strain_df
+
+
+def get_ingredients() -> pd.DataFrame:
+
+    session = _get_session()
+    url = "https://mediadive.dsmz.de/rest/ingredients"
+
+    response = session.get(url)
+    response.raise_for_status()
+
+    return pd.DataFrame(response.json()["data"])

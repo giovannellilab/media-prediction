@@ -4,6 +4,6 @@
 mamba create -n media-prediction -y
 mamba activate media-prediction
 
-mamba install pandas plotly requests biopython tqdm -y
+mamba install pandas plotly seaborn requests biopython tqdm -y
 pip install bacdive matplotlib-venn
 ```

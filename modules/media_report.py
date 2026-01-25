@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import textwrap
 import ast
+import matplotlib.pyplot as plt
+import numpy as np
 
 LETTER_WIDTH_INCH = 8.5
 LETTER_HEIGHT_INCH = 11
@@ -179,9 +181,6 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
 
 
 def cofactor_enrichment_barh(facet_figs, counts, baseline="Training", title="Metal cofactor enrichment compared to neighbors"):
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     # Pivot counts for easier plotting
     df_pivot = counts.pivot(index="CofactorFinal", columns="Set", values="ra").fillna(0)
     
@@ -206,7 +205,7 @@ def cofactor_enrichment_barh(facet_figs, counts, baseline="Training", title="Met
     ax.set_xlabel(f"Deviation from {baseline} (%)")
     ax.set_title(title, fontsize=14, weight='bold', pad=20)
     
-    # Annotate bars **inside the bar**
+    # Annotate bars with percentages
     for bar, val in zip(bars, enrichment):
         width = bar.get_width()
         x_pos = width - 0.01 if val >= 0 else width + 0.01

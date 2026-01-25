@@ -175,7 +175,46 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
 
     facet_figs.append(fig)
 
-
-
-
     return facet_figs
+
+
+def cofactor_enrichment_barh(facet_figs, counts, baseline="Training", title="Metal cofactor enrichment compared to neighbors"):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Pivot counts for easier plotting
+    df_pivot = counts.pivot(index="CofactorFinal", columns="Set", values="ra").fillna(0)
+    
+    cofactors = df_pivot.index.tolist()
+    
+    # Compute deviations from baseline
+    baseline_values = df_pivot.get(baseline, 0)
+    test_values = df_pivot.get("Test", 0)
+    enrichment = test_values - baseline_values  # positive = test uses more
+
+    y_pos = np.arange(len(cofactors))
+
+    # Create figure
+    fig, ax = plt.subplots(figsize=(LETTER_WIDTH_INCH, LETTER_HEIGHT_INCH))
+    
+    colors = ['steelblue' if x >= 0 else 'tomato' for x in enrichment]
+    bars = ax.barh(y_pos, enrichment, color=colors)
+    
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(cofactors)
+    ax.axvline(0, color='black', linewidth=1)  # baseline/zero line
+    ax.set_xlabel(f"Deviation from {baseline} (%)")
+    ax.set_title(title, fontsize=14, weight='bold', pad=20)
+    
+    # Annotate bars **inside the bar**
+    for bar, val in zip(bars, enrichment):
+        width = bar.get_width()
+        x_pos = width - 0.01 if val >= 0 else width + 0.01
+        ha = 'right' if val >= 0 else 'left'
+        ax.text(x_pos, bar.get_y() + bar.get_height()/2, f"{val*100:+.1f}%", 
+                va='center', ha=ha, color='white', fontsize=10, fontweight='bold')
+
+    ax.invert_yaxis()  # largest on top
+    facet_figs.append(fig)
+
+

@@ -18,7 +18,6 @@ def wrap_lines(text_lines, width=MAX_CHARS_PER_LINE):
     return wrapped
 
 def paginate_lines(title, text_lines, bold_flags=None):
-    
     if bold_flags is None:
         bold_flags = [False]*len(text_lines)
 
@@ -108,7 +107,7 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
     # Media usage of neighboring taxa:
     df_display = df_sorted[['media_id', 'components', 'occurrence']].copy()
     df_display['components'] = df_display['components'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
-    
+
     media_lines = []
     bold_flags = []
 
@@ -116,11 +115,11 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
         media_id = row['media_id']
         components_str = ", ".join(row['components'])
         occurrence_pct = row['occurrence'] * 100
-        line = f"{media_id}: [{components_str}] — occurrence: {occurrence_pct:.1f}% of neighbors"
+        line = f"{media_id} (occurrence: {occurrence_pct:.1f}% of neighbors): {components_str}"
         media_lines.append(line)
-        bold_flags.append(False) 
+        bold_flags.append(False)
 
-
+    # Paginate and add media lines
     facet_figs.extend(paginate_lines("Media usage of neighboring taxa:", media_lines, bold_flags))
 
     # Shared ingredients:
@@ -139,7 +138,7 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
     ax.axis("off")
 
     y = TOP_MARGIN
-    fig.text(LEFT_MARGIN, y, "Shared ingredients:", fontsize=14, weight="bold") # section header
+    fig.text(LEFT_MARGIN, y, "Shared ingredients:", fontsize=14, weight="bold")  # section header
     y -= LINE_HEIGHT * 1.5  # extra space after section header
 
     fig.text(
@@ -147,7 +146,7 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
         "Components shared by at least two media:",
         fontsize=10, weight="bold"
     )
-    y -= LINE_HEIGHT # first block
+    y -= LINE_HEIGHT  # first block
 
     fig.text(
         LEFT_MARGIN + 0.02, y,
@@ -161,14 +160,22 @@ def generate_facet_figs(neighbors, knn_percentile, lof_percentile, df_sorted, pr
         "Components shared by all media:",
         fontsize=10, weight="bold"
     )
-    y -= LINE_HEIGHT # second block
+    y -= LINE_HEIGHT  # second block
 
     fig.text(
         LEFT_MARGIN + 0.02, y,
         ", ".join(shared_all) if shared_all else "None",
         fontsize=10
     )
+    y -= LINE_HEIGHT * 1.5  # extra space before info line
+
+    # Add the italic info line at the end of this figure
+    info_line = "For more information on media preparation and conditions, visit https://mediadive.dsmz.de/media."
+    fig.text(LEFT_MARGIN, y, info_line, fontsize=10, style='italic')
 
     facet_figs.append(fig)
+
+
+
 
     return facet_figs

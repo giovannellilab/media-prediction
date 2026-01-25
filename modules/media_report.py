@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import textwrap
 import ast
-import matplotlib.pyplot as plt
 import numpy as np
 
 LETTER_WIDTH_INCH = 8.5

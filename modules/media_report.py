@@ -202,7 +202,7 @@ def cofactor_enrichment_barh(facet_figs, counts, baseline="Training", title="Met
     ax.set_yticklabels(cofactors)
     ax.axvline(0, color='black', linewidth=1)  # baseline/zero line
     ax.set_xlabel(f"Deviation from {baseline} (%)")
-    ax.set_title(title, fontsize=14, weight='bold', pad=20)
+    ax.set_title(title, fontsize=14, pad=20)
     
     # Annotate bars with percentages
     for bar, val in zip(bars, enrichment):
